@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_bros_flutter/auth/sign_in/bloc/sign_in_cubit.dart';
+import 'package:my_bros_flutter/auth/sign_in/cubit/sign_in_cubit.dart';
 import 'package:my_bros_flutter/shared/app_widgets.dart';
 
 class SignInScreen extends StatelessWidget {
@@ -18,7 +18,6 @@ class SignInScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Padding(
@@ -88,6 +87,13 @@ class SignInScreen extends StatelessWidget {
                       onPressed: () {
                         context.read<SignInCubit>().signIn();
                       },
+                    ),
+                    const SizedBox(height: 10.0),
+                    InkWell(
+                      onTap: () =>
+                          context.read<SignInCubit>().navigateToSignUpScreen(),
+                      child:
+                          const Text('Don\'t have account yet? Sign Up Here'),
                     ),
                     const SizedBox(height: 50.0),
                   ],

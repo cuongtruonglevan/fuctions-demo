@@ -2,8 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_bros_flutter/auth/auth_bloc/auth_cubit.dart';
 import 'package:my_bros_flutter/auth/auth_routes/auth_routes.dart';
-import 'package:my_bros_flutter/auth/sign_in/bloc/sign_in_cubit.dart';
+import 'package:my_bros_flutter/auth/sign_in/cubit/sign_in_cubit.dart';
 import 'package:my_bros_flutter/auth/sign_in/sign_in_screen.dart';
+import 'package:my_bros_flutter/auth/sign_up/cubit/sign_up_cubit.dart';
 import 'package:my_bros_flutter/auth/sign_up/sign_up_screen.dart';
 import 'package:my_bros_flutter/auth/welcome/welcome_screen.dart';
 import 'package:my_bros_flutter/data_access/data_access.dart';
@@ -48,5 +49,12 @@ class AuthRoutesFactory {
         ),
         child: const SignInScreen(),
       );
-  _buildSignUpScreen() => const SignUpScreen();
+  _buildSignUpScreen() => BlocProvider(
+        create: (context) => SignUpCubit(
+          navigatorKey: navigatorKey,
+          authRepo: AuthAbstractRepository.createConcrete(),
+          authCubit: BlocProvider.of<AuthCubit>(context),
+        ),
+        child: const SignUpScreen(),
+      );
 }

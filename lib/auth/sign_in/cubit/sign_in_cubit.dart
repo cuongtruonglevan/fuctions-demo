@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:my_bros_flutter/auth/auth_bloc/auth_cubit.dart';
+import 'package:my_bros_flutter/auth/auth_routes/auth_routes.dart';
 import 'package:my_bros_flutter/data_access/data_access.dart';
 import 'package:my_bros_flutter/shared/app_util.dart';
 
@@ -43,8 +43,9 @@ class SignInCubit extends Cubit<SignInState> {
 
   Future<void> signIn() async {
     final state = this.state;
+    final overlayContext = _navigatorKey.currentState!.overlay!.context;
     if (!_formKey.currentState!.validate()) {
-      // CUONG.TRUONG on January/03/2022: Do nothing if inputs are empty
+      // CUONG.TRUONG on January/03/2022: Do nothing if inputs are invalid
       return;
     }
     emit(state.copyWith(loading: true));
@@ -53,13 +54,12 @@ class SignInCubit extends Cubit<SignInState> {
           email: _emailController.text, password: _passwordController.text);
       _authCubit.didAuthenticate(user: user!);
     } catch (e) {
-      String _errorMessage = e.toString();
-      if (e is FirebaseException) {
-        _errorMessage = e.message!;
-      }
-      appShowAlertDialog(_navigatorKey.currentState!.overlay!.context,
-          title: 'Error', alertMessage: _errorMessage);
+      appShowErrorDialog(overlayContext, e);
+    } finally {
       emit(state);
     }
   }
+
+  void navigateToSignUpScreen() =>
+      _navigatorKey.currentState!.pushNamed(AuthRoutes.signUp);
 }
