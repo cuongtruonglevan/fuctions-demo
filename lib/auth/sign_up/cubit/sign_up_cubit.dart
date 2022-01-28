@@ -53,6 +53,9 @@ class SignUpCubit extends Cubit<SignUpState> {
     if (_formKey.currentState!.validate()) {
       emit(state.copyWith(loading: true));
       try {
+        debugPrint(_emailController.text);
+        debugPrint(_passwordController.text);
+        debugPrint(_confirmPasswordController.text);
         final user = await _authRepo.signUpWithEmailAndPassword(
             email: _emailController.text, password: _passwordController.text);
         _authCubit.didAuthenticate(user: user!);

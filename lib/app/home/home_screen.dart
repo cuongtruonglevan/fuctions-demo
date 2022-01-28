@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:my_bros_flutter/app/home/cubit/home_cubit.dart';
+import 'package:my_bros_flutter/app/home/widgets/post_item.dart';
 import 'package:my_bros_flutter/auth/auth_bloc/auth_cubit.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -21,7 +23,7 @@ class HomeScreen extends StatelessWidget {
             backgroundColor: Colors.blueGrey[300],
             floatingActionButton: FloatingActionButton(
               onPressed: () async {
-                await addOrEditPost(context);
+                await addPost(context);
                 if (_messageController.text.isNotEmpty) {
                   await context
                       .read<HomeCubit>()
@@ -59,12 +61,14 @@ class HomeScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Row(
                         children: [
-                          Text(
-                            _getGreetingText(user.email.toString()),
-                            style: const TextStyle(
-                                fontSize: 16.0, color: Colors.white),
+                          Expanded(
+                            child: Text(
+                              _getGreetingText(user.email.toString()),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 16.0, color: Colors.white),
+                            ),
                           ),
-                          const Spacer(),
                           IconButton(
                             onPressed: () =>
                                 BlocProvider.of<AuthCubit>(context).logOut(),
@@ -111,164 +115,10 @@ class HomeScreen extends StatelessWidget {
       itemBuilder: (context, index) {
         final _post = postLoadedState.post.elementAt(index);
         final _liked = _post.likeIds!.contains(user.uid);
-        return Container(
-          padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: Colors.blueGrey[100],
-            borderRadius: BorderRadius.circular(10.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blueGrey[500]!,
-                offset: const Offset(5.0, 5.0),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 30.0,
-                    height: 30.0,
-                    decoration: BoxDecoration(
-                      color: Colors.blueGrey[300],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        _post.user.email!.substring(0, 2).toUpperCase(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 5.0),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5.0),
-                      Text(_post.user.email!),
-                    ],
-                  ),
-                  const Spacer(),
-                  Tooltip(
-                    message: 'Post ID: ${_post.postId}',
-                    verticalOffset: 5.0,
-                    child: Icon(
-                      Icons.info,
-                      color: Colors.blueGrey[300],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Text(_post.message),
-              const SizedBox(height: 10.0),
-              _post.likeCount! > 0
-                  ? Row(
-                      children: [
-                        Icon(
-                          Icons.thumb_up_rounded,
-                          color: Colors.blueGrey[300],
-                          size: 20.0,
-                        ),
-                        const SizedBox(width: 5.0),
-                        Text(_post.likeCount.toString()),
-                      ],
-                    )
-                  : const SizedBox(),
-              const SizedBox(height: 10.0),
-              Container(
-                width: double.infinity,
-                height: 1.0,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey[300],
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blueGrey[500]!,
-                      offset: const Offset(2.0, 2.0),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      context
-                          .read<HomeCubit>()
-                          .deletePost(postId: _post.postId);
-                    },
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete_rounded,
-                          color: Colors.blueGrey[500],
-                        ),
-                        const SizedBox(width: 5.0),
-                        Text(
-                          'Delete',
-                          style: TextStyle(
-                            color: Colors.blueGrey[500],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.edit_rounded,
-                          color: Colors.blueGrey[500],
-                        ),
-                        const SizedBox(width: 5.0),
-                        Text(
-                          'Edit',
-                          style: TextStyle(
-                            color: Colors.blueGrey[500],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      if (_liked) {
-                        context
-                            .read<HomeCubit>()
-                            .disLikePost(postId: _post.postId);
-                      } else {
-                        context
-                            .read<HomeCubit>()
-                            .likePost(postId: _post.postId);
-                      }
-                    },
-                    child: Row(
-                      children: [
-                        Icon(
-                          _liked
-                              ? Icons.thumb_up_rounded
-                              : Icons.thumb_up_outlined,
-                          color: Colors.blueGrey[500],
-                        ),
-                        const SizedBox(width: 5.0),
-                        Text(
-                          'Like',
-                          style: TextStyle(
-                            color: Colors.blueGrey[500],
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        return PostItem(
+          post: _post,
+          isLiked: _liked.obs,
+          isMyPost: _post.user.uid == user.uid,
         );
       },
       separatorBuilder: (BuildContext context, int index) => const SizedBox(
@@ -295,7 +145,7 @@ class HomeScreen extends StatelessWidget {
     return '${_greeting ?? 'Hello'}, $userName';
   }
 
-  Future addOrEditPost(BuildContext context) async {
+  Future addPost(BuildContext context) async {
     await showModalBottomSheet(
       context: context,
       isDismissible: true,

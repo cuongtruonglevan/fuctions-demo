@@ -21,11 +21,16 @@ class HomeCubit extends Cubit<HomeState> {
     loadPost();
   }
 
+  List<Post> postLists = [];
+
+  buildLoadedPostState() =>
+      HomeState.postLoaded(post: postLists, loading: false);
+
   Future<void> loadPost() async {
     emit(const HomeState.postLoading());
     try {
-      final tempList = await appRepository.getPost();
-      emit(HomeState.postLoaded(post: tempList, loading: false));
+      postLists = await appRepository.getPost();
+      emit(buildLoadedPostState());
     } catch (e) {
       emit(HomeState.error(e.toString()));
     }
@@ -35,13 +40,15 @@ class HomeCubit extends Cubit<HomeState> {
       {required String message, String? imageUrl, String? videoUrl}) async {
     final state = this.state;
     if (state is HomeStatePostLoaded) {
-      emit(state.copyWith(loading: true));
+      showLoadingIndicator(overlayContext);
       try {
         await appRepository.addPost(message: message);
+        postLists = await appRepository.getPost();
+        emit(buildLoadedPostState());
       } catch (e) {
         appShowErrorDialog(overlayContext, e);
       } finally {
-        emit(state.copyWith(loading: false));
+        Navigator.of(overlayContext, rootNavigator: true).pop();
       }
     }
   }
@@ -53,13 +60,15 @@ class HomeCubit extends Cubit<HomeState> {
       String? videoUrl}) async {
     final state = this.state;
     if (state is HomeStatePostLoaded) {
-      emit(state.copyWith(loading: true));
+      showLoadingIndicator(overlayContext);
       try {
         await appRepository.editPost(postId: postId, message: message);
+        postLists = await appRepository.getPost();
+        emit(buildLoadedPostState());
       } catch (e) {
         appShowErrorDialog(overlayContext, e);
       } finally {
-        emit(state.copyWith(loading: false));
+        hideLoadingIndicator(overlayContext);
       }
     }
   }
@@ -67,13 +76,15 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> deletePost({required String postId}) async {
     final state = this.state;
     if (state is HomeStatePostLoaded) {
-      emit(state.copyWith(loading: true));
+      showLoadingIndicator(overlayContext);
       try {
         await appRepository.deletePost(postId: postId);
+        postLists = await appRepository.getPost();
+        emit(buildLoadedPostState());
       } catch (e) {
         appShowErrorDialog(overlayContext, e);
       } finally {
-        emit(state.copyWith(loading: false));
+        hideLoadingIndicator(overlayContext);
       }
     }
   }

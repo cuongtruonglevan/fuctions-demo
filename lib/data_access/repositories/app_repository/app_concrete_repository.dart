@@ -36,7 +36,8 @@ class AppConcreteRepository extends AppAbstractRepository {
       String? imageUrl,
       videoUrl}) async {
     final _param = {'postId': postId};
-    await firebaseFunction.httpsCallable('dislikePost').call(_param);
+    _param.addAll({'message': message});
+    await firebaseFunction.httpsCallable('editPost').call(_param);
   }
 
   @override

@@ -55,3 +55,33 @@ Future<void> appShowRetryDialog(BuildContext context,
     },
   );
 }
+
+Future<void> appShowConfirmDialog(
+  BuildContext context, {
+  required String title,
+  required String retryMessage,
+  required Future confirmAction,
+}) async {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(retryMessage),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await confirmAction;
+            },
+            child: const Text('Yes'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('No'),
+          )
+        ],
+      );
+    },
+  );
+}

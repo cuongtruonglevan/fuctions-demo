@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-/// A button that can show activity indicator.
+// CUONG.TRUONG on January/27/2022: A button that can show loading indicator.
 class AppLoadingButton extends StatelessWidget {
   final String title;
   final Widget leading;
@@ -44,12 +45,9 @@ class AppLoadingButton extends StatelessWidget {
         width: double.infinity,
         child: disabled && showLoading
             ? const Center(
-                child: SizedBox(
-                  height: 16.0,
-                  width: 16.0,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
+                child: SpinKitThreeBounce(
+                  size: 16.0,
+                  color: Colors.white,
                 ),
               )
             : Row(
